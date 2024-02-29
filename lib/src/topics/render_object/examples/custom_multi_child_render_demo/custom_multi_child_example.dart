@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -151,7 +150,6 @@ class CustomColumnRenderBox extends RenderBox
   void performLayout() {
     /* Layout all the children. (Layout process will be done. SO not dry.) */
     final x = _getSizeAndLayout(constraints: constraints);
-    print("${constraints}, $x");
     size = x;
 
     RenderBox? currentChild = firstChild;
