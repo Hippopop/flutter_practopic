@@ -10,7 +10,7 @@ class SimpleShaderScreen extends StatelessWidget {
     try {
       final fragmentProgram =
           await FragmentProgram.fromAsset('shaders/simple.frag');
-      return await fragmentProgram.fragmentShader();
+      return fragmentProgram.fragmentShader();
     } catch (e, s) {
       log("#GetShaderError", error: e, stackTrace: s);
       rethrow;

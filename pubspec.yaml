@@ -20,3 +20,5 @@ flutter:
 
   shaders:
     - "shaders/simple.frag"
+    - "shaders/toy_gradient.frag"
+    - "shaders/toy_mozice.frag"
