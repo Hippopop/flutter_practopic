@@ -15,6 +15,14 @@ vec3 palette( float t ) {
     return a + b*cos( 6.28318*(c*t+d) );
 }
 
+float linearColor(float val) {
+if(val <= 0.04045) {
+   return (val / 12.92);
+} else {
+    return pow((( val + 0.055)/1.055),2.4);
+}
+}
+
 /* 
  vec2 uv = (fragCoord * 2.0 - iResolution.xy) / iResolution.y;
     vec2 uv0 = uv;
@@ -59,11 +67,28 @@ void main()
         d = pow(0.01 / d, 1.2);
 
         vec3 newColor = col * d;
-        if(newColor == finalColor.xyz) {
-            finalColor += (vec4(newColor, 0) * 0);
-        } else {
-            finalColor += (vec4(newColor, 1.0) * 1);
-        }
+/* Get the luminance of a new color, And make it that colors opacity! */
+float linearR = linearColor(newColor.r);
+float linearG = linearColor(newColor.g);
+float linearB = linearColor(newColor.b);
+
+float l = (0.2126 * linearR + 0.7152 * linearG + 0.0722 * linearB);
+
+if(l < 0.01) {
+finalColor += vec4(newColor, l);
+} else {
+finalColor += vec4(newColor, 1);
+
+}
+
+
+
+        // float blackThreshold = 0.10;
+        // if(newColor.x < blackThreshold && newColor.y < blackThreshold && newColor.z < blackThreshold) {
+        //     finalColor += (vec4(newColor, 0));
+        // } else {
+        //     finalColor += (vec4(newColor, 1.0));
+        // }
     }
 
     fragColor = finalColor;
