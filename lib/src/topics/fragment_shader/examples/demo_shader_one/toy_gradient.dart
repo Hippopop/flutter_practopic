@@ -69,8 +69,6 @@ class ToyGradientShaderPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    print(time);
-
     shader.setFloat(0, size.width);
     shader.setFloat(1, size.height);
     shader.setFloat(2, time);
