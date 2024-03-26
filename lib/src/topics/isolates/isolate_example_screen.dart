@@ -10,16 +10,31 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+int slowFib(int n) => n <= 2 ? 1 : slowFib(n - 1) + slowFib(n - 2);
+int testingValue = 0;
 void _isolateFunction(SendPort parentsSendPort) {
   final internalReceivePort = ReceivePort();
   parentsSendPort.send(internalReceivePort.sendPort);
-  internalReceivePortListener(message) {
+  internalReceivePortListener(message) async {
     if (message is int) {
-      print("Received Value Inside Isolate : $message");
-      parentsSendPort.send(List.generate(
-        message,
-        (index) => index,
-      ));
+      final time = DateTime.now();
+      for (int i = 1; i <= message; i++) {
+        final total = i * (i + 1) / 2;
+        if (total < 1) return [1];
+        final prev = i - 1;
+        final prevTotal = prev * (prev + 1) / 2;
+        final newStart = (prevTotal + 1).toInt();
+        List<int> finalList = [];
+        for (int i = newStart; i <= total; i++) {
+          testingValue++;
+          log("TestingValueInsideIsolate: $testingValue");
+          finalList.add(await Isolate.run(
+            () => slowFib(i),
+          ));
+        }
+        log("Time Taken for row($i) generation : ${DateTime.now().difference(time)}");
+        parentsSendPort.send(finalList);
+      }
     }
   }
 
@@ -58,7 +73,7 @@ class _FlutterIsolateDemoScreenState extends State<FlutterIsolateDemoScreen> {
       );
       _rcvPort.listen(_receiveListener);
       final sendPort = await _sendPortCompleter.future;
-      sendPort.send(5);
+      sendPort.send(13);
     } catch (e, s) {
       log("#InitializationError", error: e, stackTrace: s);
     }
@@ -69,7 +84,6 @@ class _FlutterIsolateDemoScreenState extends State<FlutterIsolateDemoScreen> {
       _sendPortCompleter.complete(message);
     }
     if (message is List<int>) {
-      print("Received Value From Isolate : $message");
       setState(() {
         fibList.add(message);
       });
@@ -84,20 +98,28 @@ class _FlutterIsolateDemoScreenState extends State<FlutterIsolateDemoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("Building : $fibList");
+    log("TestingValueInsideBuild : $testingValue");
     final textPainter = Theme.of(context).textTheme;
     return Scaffold(
-      body: SizedBox.expand(
-        child: CustomPaint(
-          painter: ArtPainterFromIsolate(
-            fibList: fibList,
-            textStyle: textPainter.bodyMedium!,
+      body: InteractiveViewer(
+        minScale: 0.0001,
+        maxScale: 100,
+        boundaryMargin: const EdgeInsets.all(double.infinity),
+        child: SizedBox.fromSize(
+          size: MediaQuery.sizeOf(context),
+          child: CustomPaint(
+            painter: ArtPainterFromIsolate(
+              fibList: fibList,
+              textStyle: textPainter.bodyMedium!,
+            ),
           ),
         ),
       ),
     );
   }
 }
+
+typedef BallConfig = ({TextPainter ballPainter, double radius});
 
 class ArtPainterFromIsolate extends CustomPainter {
   final TextStyle textStyle;
@@ -109,6 +131,7 @@ class ArtPainterFromIsolate extends CustomPainter {
   });
 
   final textPadding = 12;
+  final horizontalPadding = 10;
   final circlePaint = Paint()
     ..color = Colors.grey
     ..style = PaintingStyle.stroke
@@ -119,20 +142,41 @@ class ArtPainterFromIsolate extends CustomPainter {
     double yc = size.height - (textPadding);
     final xc = (size.width / 2);
 
-    fibList.forEach((element) {
-      element.forEach((element) {
-        final drawBallWidth = __paintSingleBallReturnDiameter(
+    for (var element in fibList) {
+      double biggest = 0;
+      List<BallConfig> horizontalBallList = [];
+      for (int element in element) {
+        final ballConfig = __getCircleConfig(canvas, element);
+        horizontalBallList.add(ballConfig);
+        if (ballConfig.radius > biggest) {
+          biggest = ballConfig.radius;
+        }
+      }
+      final lineWidth = horizontalBallList.fold(
+        0.0,
+        (previousValue, element) =>
+            previousValue + (element.radius * 2) + horizontalPadding,
+      );
+      double startX = xc - (lineWidth / 2);
+      for (BallConfig x in horizontalBallList) {
+        final moveX = x.radius + (horizontalPadding / 2);
+        final c = Offset(startX + moveX, yc - x.radius);
+        canvas.drawCircle(c, x.radius, circlePaint);
+        x.ballPainter.paint(
           canvas,
-          element,
-          Offset(xc, yc),
+          c.translate(
+            -(x.ballPainter.width / 2),
+            -(x.ballPainter.height / 2),
+          ),
         );
-        yc -= (drawBallWidth + (textPadding * 2));
-      });
-    });
+        startX += (moveX * 2);
+      }
+
+      yc -= ((biggest * 2) + (textPadding * 2));
+    }
   }
 
-  double __paintSingleBallReturnDiameter(
-      Canvas canvas, int number, Offset start) {
+  BallConfig __getCircleConfig(Canvas canvas, int number) {
     final textPainter = TextPainter(
       textAlign: TextAlign.center,
       textDirection: TextDirection.ltr,
@@ -144,22 +188,11 @@ class ArtPainterFromIsolate extends CustomPainter {
       ..layout(maxWidth: 250);
 
     final minRad = math.max(textPainter.height, textPainter.width);
-
-    final center = Offset(start.dx, start.dy - minRad);
-
-    canvas.drawCircle(center, minRad, circlePaint);
-    textPainter.paint(
-      canvas,
-      center.translate(
-        -(textPainter.width / 2),
-        -(textPainter.height / 2),
-      ),
-    );
-    return minRad * 2;
+    return (ballPainter: textPainter, radius: minRad);
   }
 
   @override
   bool shouldRepaint(covariant ArtPainterFromIsolate oldDelegate) {
-    return true /* oldDelegate.fibList.first.length != fibList.first.length */;
+    return true;
   }
 }
