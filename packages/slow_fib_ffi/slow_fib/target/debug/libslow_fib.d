@@ -1,0 +1,1 @@
+/Volumes/Development/Flutter/Projects/Personal/flutter_practopic/packages/slow_fib_ffi/slow_fib/target/debug/libslow_fib.a: /Volumes/Development/Flutter/Projects/Personal/flutter_practopic/packages/slow_fib_ffi/slow_fib/src/lib.rs
