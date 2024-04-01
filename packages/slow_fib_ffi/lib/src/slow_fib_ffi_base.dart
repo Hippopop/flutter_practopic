@@ -5,8 +5,10 @@ const fileName = "libslow_fib.dylib";
 const targetPath = "slow_fib/target/debug/";
 
 typedef NativeCallType = Pointer<Int32> Function(Pointer<Int32>);
+typedef NativeSlowFibCallType = Int32 Function(Int32);
+typedef DartSlowFibCallType = int Function(int);
 
-late final dylib = DynamicLibrary.open(targetPath + fileName);
+final dylib = DynamicLibrary.open(targetPath + fileName);
 
 class SlowFibConverter {
   static List<int> convert({required int row}) {
@@ -19,7 +21,15 @@ class SlowFibConverter {
 
     final returnPoint = dartFunction(point);
     calloc.free(point);
-    print(returnPoint.asTypedList(row + 1));
-    return [];
+    final result = returnPoint.asTypedList(row);
+    print(result);
+
+    final slowFib = dylib
+        .lookupFunction<NativeSlowFibCallType, DartSlowFibCallType>('slow_fib');
+
+    final fibVal = slowFib(12);
+    print(fibVal);
+
+    return result.toList();
   }
 }

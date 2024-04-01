@@ -9,7 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  slow_fib_ffi:
+    path: "./packages/slow_fib_ffi"
 dev_dependencies:
   flutter_test:
     sdk: flutter

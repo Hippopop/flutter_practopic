@@ -9,6 +9,7 @@ import 'dart:isolate';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:slow_fib_ffi/slow_fib_ffi.dart';
 
 int slowFib(int n) => n <= 2 ? 1 : slowFib(n - 1) + slowFib(n - 2);
 int testingValue = 0;
