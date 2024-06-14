@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_shaders: ^0.1.2
   slow_fib_ffi:
     path: "./packages/slow_fib_ffi"
 dev_dependencies:
@@ -19,7 +20,13 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  assets:
+    - "images/image-1.jpg"
+    - "images/image-2.jpg"
+
   shaders:
     - "shaders/simple.frag"
     - "shaders/toy_gradient.frag"
     - "shaders/toy_mozice.frag"
+    - "shaders/image_flip.frag"
+    - "shaders/ripple.frag"
