@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_shaders: ^0.1.2
+  go_router: ^14.2.0
   slow_fib_ffi:
     path: "./packages/slow_fib_ffi"
 dev_dependencies:

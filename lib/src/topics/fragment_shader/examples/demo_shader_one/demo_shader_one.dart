@@ -54,8 +54,8 @@ class SimpleShaderPainter extends CustomPainter {
     shader.setFloat(1, size.height);
     shader.setFloat(2, shaderColor.red.toDouble() / 255);
     shader.setFloat(3, shaderColor.green.toDouble() / 255);
-    shader.setFloat(4, shaderColor.blue.toDouble() / 255);
-    shader.setFloat(5, shaderColor.alpha.toDouble() / 255);
+    // shader.setFloat(4, shaderColor.blue.toDouble() / 255);
+    // shader.setFloat(5, shaderColor.alpha.toDouble() / 255);
     canvas.drawRect(
       Rect.fromLTWH(0, 0, size.width, size.height),
       Paint()..shader = shader,

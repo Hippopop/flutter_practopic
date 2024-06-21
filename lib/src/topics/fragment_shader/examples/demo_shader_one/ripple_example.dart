@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_shaders/flutter_shaders.dart';
+import 'package:go_router/go_router.dart';
 
 class RippleDemoPage extends StatefulWidget {
   const RippleDemoPage({super.key});
@@ -85,7 +86,9 @@ class _RippleDemoPageState extends State<RippleDemoPage>
                           fit: BoxFit.cover,
                         ),
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            context.push("/");
+                          },
                           child: const Text("Let's Check"),
                         ),
                       ],
